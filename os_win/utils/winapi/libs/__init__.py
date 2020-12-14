@@ -14,9 +14,12 @@
 #    under the License.
 
 import importlib
+from oslo_log import log as logging
 
 from os_win._i18n import _
 from os_win import exceptions
+
+LOG = logging.getLogger(__name__)
 
 
 ADVAPI32 = 'advapi32'
@@ -41,7 +44,10 @@ def _get_shared_lib_module(lib_name):
 def register():
     for lib_name in libs:
         module = _get_shared_lib_module(lib_name)
-        module.register()
+        try:
+            module.register()
+        except FileNotFoundError:
+            LOG.info("Library not available: %s", lib_name)
 
 
 def get_shared_lib_handle(lib_name):
